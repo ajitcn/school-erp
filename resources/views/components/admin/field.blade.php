@@ -1,0 +1,2 @@
+@props(['label','name','type'=>'text','value'=>null,'help'=>null])
+<div class="form-group"><label for="{{ $name }}">{{ $label }}</label><input id="{{ $name }}" name="{{ $name }}" type="{{ $type==='date'?'text':$type }}" value="{{ old($name,$value) }}" {{ $attributes->merge(['class'=>'form-control '.($type==='date'?'js-datepicker ':'').($errors->has($name)?'is-invalid':'')]) }}>@if($help)<small class="form-text text-muted">{{ $help }}</small>@endif @error($name)<div class="invalid-feedback">{{ $message }}</div>@enderror</div>

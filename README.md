@@ -9,6 +9,10 @@
 
 ## About Laravel
 
+## Multi-tenant SaaS
+
+The application provisions an isolated tenant per school or degree college. Registration creates the organization, owner membership, trial subscription, and settings. Tenant switching, platform tenant administration, expiring invitations, tenant-scoped custom roles, and branch access are implemented. Existing data is preserved by additive migrations.
+
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
@@ -56,3 +60,20 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# School & Degree College CRM/ERP
+
+Laravel 13 multi-branch school and degree-college foundation with secure, additive migrations for academics, admissions, attendance, fees, expenses, audit logs, imports, notifications, and future biometric integration.
+
+## Local setup
+
+1. Use PHP 8.5 (the locked Laravel dependencies currently require PHP >= 8.4.1), Composer, MySQL, Node.js and npm.
+2. Copy `.env.example` to `.env`, configure `DB_*`, then run `php artisan key:generate`.
+3. Run `php artisan migrate` and `php artisan db:seed`.
+4. Run `npm install` and `npm.cmd run build`.
+5. Start with `php artisan serve`.
+
+Development login: `admin@school.test` / `ChangeMe!2026` — replace immediately in a real environment.
+
+See `PROJECT_PLAN.md`, `DATABASE_DESIGN.md`, `USER_ROLES_AND_PERMISSIONS.md`, `API_DOCUMENTATION.md`, `DEPLOYMENT.md`, and `TESTING.md`.
+
+The current working surface includes admissions review and private documents, student/parent account linking, CSV/XLSX import preview and safe rollback, academic, fee, attendance, expense, approval, reconciliation, portal, report, library, transport, hostel, scholarship, exam, biometric, API, and PWA flows. Notifications use a queue with retries. Razorpay online subscription checkout is configurable; provider credentials are required. Twilio SMS/WhatsApp delivery requires account credentials and approved senders. See `PROJECT_PLAN.md` and `DEPLOYMENT.md` for the status and deployment requirements.

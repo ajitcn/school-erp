@@ -1,0 +1,1 @@
+<nav aria-label="breadcrumb"><ol class="breadcrumb admin-breadcrumb"><li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li><li class="breadcrumb-item active">{{ ucfirst(str_replace(['.','-','_'],' ',request()->route()?->getName() ?? 'dashboard')) }}</li></ol></nav>

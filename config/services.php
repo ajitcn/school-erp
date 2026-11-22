@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'twilio' => [
+        'account_sid' => env('TWILIO_ACCOUNT_SID'),
+        'auth_token' => env('TWILIO_AUTH_TOKEN'),
+        'sms_from' => env('TWILIO_SMS_FROM'),
+        'whatsapp_from' => env('TWILIO_WHATSAPP_FROM'),
+    ],
+
+    'razorpay' => [
+        'key' => env('RAZORPAY_KEY_ID'),
+        'secret' => env('RAZORPAY_KEY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+        'currency' => env('RAZORPAY_CURRENCY', 'INR'),
+    ],
+
 ];

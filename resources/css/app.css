@@ -1,9 +1,5 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
+/* Bootstrap 4.6 remains the primary UI framework. These tokens keep the Vite and fallback builds aligned. */
+:root{--school-erp-primary:#3B7DDD;--school-erp-sidebar:#222E3C;--school-erp-background:#F5F7FB;--school-erp-font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body.admin-body{font-family:var(--school-erp-font);font-size:14px;line-height:1.5;font-weight:400}
+body.admin-body button,body.admin-body input,body.admin-body select,body.admin-body textarea{font-family:var(--school-erp-font)}
+@media print{.admin-sidebar,.admin-navbar,.page-actions{display:none!important}.admin-main{margin-left:0}.admin-content{padding:0}}

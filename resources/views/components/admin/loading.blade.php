@@ -1,0 +1,1 @@
+<div {{ $attributes->merge(['class'=>'text-center py-4']) }} role="status"><span class="spinner-border spinner-border-sm text-primary mr-2"></span><span class="text-muted small">{{ $slot->isEmpty()?'Loading...':$slot }}</span></div>

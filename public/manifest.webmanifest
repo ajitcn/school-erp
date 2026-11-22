@@ -1,0 +1,15 @@
+{
+  "id": "/portal",
+  "name": "EduSchool ERP",
+  "short_name": "EduSchool",
+  "description": "School and college management portal",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#193b68",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"/icons/app-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
