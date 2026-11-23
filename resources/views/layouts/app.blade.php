@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin-kit.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin-menu.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin-shell.css?v=8') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-shell.css?v=9') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard.css?v=4') }}">
-        <link rel="stylesheet" href="{{ asset('css/application-ui.css?v=110') }}">
-        <link rel="stylesheet" href="{{ asset('css/platform.css?v=5') }}">
+        <link rel="stylesheet" href="{{ asset('css/application-ui.css?v=112') }}">
+        <link rel="stylesheet" href="{{ asset('css/platform.css?v=6') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
 </head>
 <body class="admin-body">

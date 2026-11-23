@@ -6185,3 +6185,48 @@ body.admin-dark .academic-student-result:focus {
         width: 100%;
     }
 }
+body.admin-body .notification-summary-grid .stat-icon {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    font-size: 19px;
+    line-height: 1;
+}
+
+body.admin-body .notification-summary-grid .stat-icon i {
+    line-height: 1;
+}
+
+body.admin-body:not(.admin-dark) .notification-summary-grid .stat-icon-tone-primary {
+    background: #eaf1fb !important;
+    color: #356aa7;
+}
+
+body.admin-body:not(.admin-dark) .notification-summary-grid .stat-icon-tone-info {
+    background: #e9f4f8 !important;
+    color: #277b9a;
+}
+
+body.admin-body:not(.admin-dark) .notification-summary-grid .stat-icon-tone-danger {
+    background: #fdebea !important;
+    color: #b93832;
+}
+
+body.admin-dark .notification-summary-grid .stat-icon-tone-primary {
+    background: #243f60 !important;
+    color: #8db9f5;
+}
+
+body.admin-dark .notification-summary-grid .stat-icon-tone-info {
+    background: #1c4658 !important;
+    color: #70c6e4;
+}
+
+body.admin-dark .notification-summary-grid .stat-icon-tone-danger {
+    background: #542f34 !important;
+    color: #ff9a91;
+}

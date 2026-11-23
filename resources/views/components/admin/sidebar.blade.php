@@ -33,13 +33,11 @@
             @if (! $isPlatformAdmin && $activeTenant?->logo)
                 <img src="{{ asset('storage/'.$activeTenant->logo) }}" alt="{{ $activeTenant->institution_name }} logo" class="admin-logo tenant-brand-logo">
             @else
-                <span class="admin-logo" aria-hidden="true">
-                    <i class="fa-solid {{ $isPlatformAdmin ? 'fa-layer-group' : 'fa-school' }}"></i>
-                </span>
+                <img src="{{ asset('img/app-logo.png') }}" alt="{{ $isPlatformAdmin ? 'TechyGIG' : '' }}" class="admin-logo app-logo-mark">
             @endif
             <span>
                 <strong>{{ $isPlatformAdmin ? 'Platform Admin' : ($activeTenant?->institution_name ?? 'EduSchool') }}</strong>
-                <small>{{ $isPlatformAdmin ? 'Tenant & subscription management' : ($activeTenant?->institution_type === 'college' ? 'College Management' : 'School Management') }}</small>
+                <small>{{ $isPlatformAdmin ? 'Tenants & Billing' : ($activeTenant?->institution_type === 'college' ? 'College Management' : 'School Management') }}</small>
             </span>
         </a>
         <button type="button" class="btn sidebar-close d-lg-none" data-sidebar-close aria-label="Close navigation">&times;</button>

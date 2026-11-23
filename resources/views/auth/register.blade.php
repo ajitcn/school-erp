@@ -13,14 +13,14 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         >
-        <link rel="stylesheet" href="{{ asset('css/auth.css?v=1') }}">
+        <link rel="stylesheet" href="{{ asset('css/auth.css?v=5') }}">
     </head>
     <body class="auth-page auth-registration-page">
         <main class="auth-registration-layout">
             <aside class="auth-registration-aside">
-                <a class="auth-brand" href="{{ route('login') }}" aria-label="School ERP sign in">
-                    <span class="auth-brand-mark">SE</span>
-                    <span>School ERP</span>
+                <a class="auth-brand" href="{{ route('login') }}" aria-label="School ERP sign in, by TechyGIG">
+                    <img class="auth-brand-logo" src="{{ asset('img/app-logo.png') }}" alt="TechyGIG">
+                    <span class="auth-brand-product">School ERP</span>
                 </a>
 
                 <div class="auth-registration-intro">

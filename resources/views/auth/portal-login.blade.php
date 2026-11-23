@@ -6,7 +6,7 @@
     <title>Student and Parent Sign In · School ERP</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/auth.css?v=4') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css?v=5') }}">
 </head>
 <body class="auth-page">
     <main class="container py-5">
@@ -15,7 +15,7 @@
                 <div class="card shadow-lg border-0">
                     <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <div class="brand-mark mx-auto mb-3">SE</div>
+                            <img class="auth-brand-logo mx-auto mb-3" src="{{ asset('img/app-logo.png') }}" alt="TechyGIG">
                             <h1 class="h3">Student and Parent Portal</h1>
                             <p class="text-muted mb-0">Sign in with your portal ID or contact and password.</p>
                         </div>

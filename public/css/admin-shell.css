@@ -53,6 +53,16 @@ body.admin-body {
     font-size: 15px;
 }
 
+.admin-brand .admin-logo.app-logo-mark {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+    padding: 0;
+    border-radius: 8px;
+    background: #fff;
+    object-fit: contain;
+}
+
 .admin-brand .tenant-brand-logo {
     object-fit: contain;
     padding: 3px;

@@ -7,15 +7,13 @@
     <title>Set portal password with PIN · School ERP</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/auth.css?v=4') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css?v=5') }}">
 </head>
 <body class="auth-page portal-password-setup-page">
     <main class="portal-password-setup-shell">
         <section class="portal-password-setup-card" aria-labelledby="pin-setup-title">
             <header class="portal-password-setup-brand">
-                <span class="portal-password-setup-logo-fallback" aria-hidden="true">
-                    <i class="fa-solid fa-school"></i>
-                </span>
+                <img class="portal-password-setup-logo portal-app-logo-mark" src="{{ asset('img/app-logo.png') }}" alt="TechyGIG">
                 <span class="portal-password-setup-institution">
                     <strong>School ERP</strong>
                     <small>Student and parent portal</small>

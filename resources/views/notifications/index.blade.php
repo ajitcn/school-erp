@@ -6,15 +6,15 @@
         description="Review account alerts and delivery updates in one place."
     />
 
-    <div class="row mb-4">
+    <div class="row mb-4 notification-summary-grid">
         <div class="col-md-4 mb-3 mb-md-0">
             <x-admin.stat-card label="All notifications" :value="number_format($totalCount)" detail="Alerts for your account" icon="fa-bell" />
         </div>
         <div class="col-md-4 mb-3 mb-md-0">
-            <x-admin.stat-card label="Unread" :value="number_format($unreadCount)" detail="Waiting for your review" tone="warning" icon="fa-envelope" />
+            <x-admin.stat-card label="Unread" :value="number_format($unreadCount)" detail="Waiting for your review" tone="info" icon="fa-envelope-open" />
         </div>
         <div class="col-md-4">
-            <x-admin.stat-card label="Delivery issues" :value="number_format($failedCount)" detail="Notifications that failed to send" tone="danger" icon="fa-triangle-exclamation" />
+            <x-admin.stat-card label="Delivery issues" :value="number_format($failedCount)" detail="Notifications that failed to send" tone="danger" icon="fa-circle-exclamation" />
         </div>
     </div>
 
