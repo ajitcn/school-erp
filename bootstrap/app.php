@@ -41,4 +41,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('subscriptions:expire')->dailyAt('00:05')->withoutOverlapping();
         $schedule->command('fees:send-due-reminders')->dailyAt('08:00')->withoutOverlapping();
+        $schedule->command('imports:prune-previews')->hourly()->withoutOverlapping();
     })->create();

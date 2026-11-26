@@ -12,9 +12,13 @@ trait BelongsToTenant
     {
         static::addGlobalScope('tenant', function (Builder $builder) {
             $tenantId = app(TenantContext::class)->id();
-            if ($tenantId && $builder->getModel()->getConnection()->getSchemaBuilder()->hasColumn($builder->getModel()->getTable(), 'tenant_id')) {
-                $builder->where($builder->getModel()->qualifyColumn('tenant_id'), $tenantId);
+            if (! $tenantId) {
+                $builder->whereRaw('1 = 0');
+
+                return;
             }
+
+            $builder->where($builder->getModel()->qualifyColumn('tenant_id'), $tenantId);
         });
         static::creating(function ($model) {
             if (! $model->getAttribute('tenant_id') && app(TenantContext::class)->id()) {

@@ -4,10 +4,30 @@ use App\Models\Subscription;
 use App\Services\FeeDueReminderService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('imports:prune-previews', function (): void {
+    $disk = Storage::disk('local');
+    $cutoff = now()->subDay()->timestamp;
+    $deleted = 0;
+
+    foreach ($disk->files('student-imports') as $path) {
+        if (! Str::isUuid(pathinfo($path, PATHINFO_FILENAME)) || pathinfo($path, PATHINFO_EXTENSION) !== 'json') {
+            continue;
+        }
+
+        if ($disk->lastModified($path) < $cutoff && $disk->delete($path)) {
+            $deleted++;
+        }
+    }
+
+    $this->info("Deleted {$deleted} expired import preview(s).");
+})->purpose('Remove expired private student import previews');
 
 Artisan::command('subscriptions:expire', function () {
     $count = Subscription::query()->whereIn('status', ['trial', 'active'])

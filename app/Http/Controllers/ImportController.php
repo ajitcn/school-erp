@@ -17,6 +17,8 @@ use App\Services\StudentRegisterNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -545,11 +547,29 @@ class ImportController extends Controller
         if (! $preview) {
             return back()->withErrors(['file' => 'The spreadsheet has no student rows to import.'])->withInput();
         }
-        session(['student_import' => [
+        $importToken = (string) Str::uuid();
+        $batchPath = 'student-imports/'.$importToken.'.json';
+        $batch = [
             'branch_id' => $branchId,
             'file_name' => $request->file('file')->getClientOriginalName(),
             'rows' => $preview,
-        ]]);
+        ];
+
+        $stored = Storage::disk('local')->put(
+            $batchPath,
+            json_encode($batch, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
+        );
+
+        if (! $stored) {
+            return back()->withErrors(['file' => 'The import preview could not be saved. Check storage permissions and try again.'])->withInput();
+        }
+
+        $previousToken = session('student_import.token');
+        if (is_string($previousToken) && Str::isUuid($previousToken)) {
+            Storage::disk('local')->delete('student-imports/'.$previousToken.'.json');
+        }
+
+        session(['student_import' => ['token' => $importToken]]);
 
         return view('imports.preview', [
             'rows' => $preview,
@@ -561,10 +581,27 @@ class ImportController extends Controller
 
     public function confirm(Request $request, StudentRegisterNumberService $registerNumbers)
     {
-        $batch = session('student_import');
-        if (! is_array($batch) || empty($batch['rows'])) {
+        $importToken = session('student_import.token');
+        if (! is_string($importToken) || ! Str::isUuid($importToken)) {
             return redirect()->route('imports.students')->withErrors(['file' => 'Import preview has expired. Upload the CSV again.']);
         }
+
+        $batchPath = 'student-imports/'.$importToken.'.json';
+        try {
+            $batch = Storage::disk('local')->exists($batchPath)
+                ? json_decode(Storage::disk('local')->get($batchPath), true, 512, JSON_THROW_ON_ERROR)
+                : null;
+        } catch (\Throwable) {
+            $batch = null;
+        }
+
+        if (! is_array($batch) || ! isset($batch['branch_id']) || empty($batch['rows']) || ! is_array($batch['rows'])) {
+            session()->forget('student_import');
+            Storage::disk('local')->delete($batchPath);
+
+            return redirect()->route('imports.students')->withErrors(['file' => 'Import preview has expired or could not be read. Upload the CSV again.']);
+        }
+
         $branch = Branch::query()->findOrFail($batch['branch_id']);
         abort_unless($request->user()->canAccessBranch($branch->id), 403);
         $rows = $batch['rows'];
@@ -685,6 +722,7 @@ class ImportController extends Controller
             return $history;
         });
         session()->forget('student_import');
+        Storage::disk('local')->delete($batchPath);
 
         return redirect()->route('imports.students')->with('success', "Import completed: {$history->success_rows} successful, {$history->failed_rows} failed.");
     }

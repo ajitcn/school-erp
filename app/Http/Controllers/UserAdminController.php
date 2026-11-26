@@ -35,6 +35,7 @@ class UserAdminController extends Controller
 
         return Role::query()
             ->whereNotIn('name', ['super_admin', 'student', 'parent'])
+            ->when(! auth()->user()->isTenantAdmin(), fn ($query) => $query->whereNotIn('name', ['owner', 'administrator']))
             ->where(function ($query) use ($tenantId, $tenantRoleNames): void {
                 $query->where('tenant_id', $tenantId)
                     ->orWhere(function ($builtInRoles) use ($tenantRoleNames): void {
@@ -75,6 +76,7 @@ class UserAdminController extends Controller
     {
         $role = Role::query()->findOrFail($data['role_id']);
         abort_if($role->name === 'super_admin', 403, 'Platform administrator access is assigned outside tenant user management.');
+        abort_if(in_array($role->name, ['owner', 'administrator'], true) && ! auth()->user()->isTenantAdmin(), 403, 'Only a tenant administrator can assign an administrator role.');
         abort_if(in_array($role->name, ['student', 'parent'], true), 422, 'Student and parent portal access is managed on their records, not in staff users.');
 
         $branchIds = array_values(array_unique(array_map('intval', array_filter(array_merge(
@@ -225,6 +227,7 @@ class UserAdminController extends Controller
     {
         abort_unless($this->tenantUsers()->whereKey($user->id)->exists(), 404);
         $membership = $user->tenantMembership($this->tenant()->id);
+        $this->authorizePrivilegedMembership($membership?->role);
 
         return view('admin.users.form', [
             'user' => $user->load('branches'),
@@ -240,6 +243,7 @@ class UserAdminController extends Controller
     public function update(Request $request, User $user)
     {
         abort_unless($this->tenantUsers()->whereKey($user->id)->exists(), 404);
+        $this->authorizePrivilegedMembership($user->tenantMembership($this->tenant()->id)?->role);
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'email' => 'required|email|unique:users,email,'.$user->id,
@@ -282,6 +286,7 @@ class UserAdminController extends Controller
     public function toggle(User $user)
     {
         abort_unless($this->tenantUsers()->whereKey($user->id)->exists(), 404);
+        $this->authorizePrivilegedMembership($user->tenantMembership($this->tenant()->id)?->role);
 
         if ((int) $user->id === (int) auth()->id()) {
             throw ValidationException::withMessages([
@@ -293,6 +298,12 @@ class UserAdminController extends Controller
         $membership->update(['is_active' => ! $membership->is_active]);
 
         return back()->with('success', 'User status updated for this tenant.');
+    }
+
+    /** Protect privileged accounts from users with delegated user management. */
+    private function authorizePrivilegedMembership(?string $role): void
+    {
+        abort_if(in_array($role, ['owner', 'administrator'], true) && ! auth()->user()->isTenantAdmin(), 403);
     }
 
     public function roles()
