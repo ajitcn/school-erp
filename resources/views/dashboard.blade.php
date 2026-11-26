@@ -159,6 +159,14 @@
             @endif
         </section>
 
+        <div class="mb-4">
+            <button class="btn btn-sm btn-outline-primary" type="button" id="copy-portal-login">
+                <i class="fa-solid fa-link mr-1" aria-hidden="true"></i> Copy student and parent portal link
+            </button>
+            <small id="portal-copy-status" class="text-muted ml-2" role="status" aria-live="polite"></small>
+            <input id="portal-login-link" class="form-control form-control-sm mt-2" type="text" value="{{ route('portal.password.login') }}" readonly aria-label="Student and parent portal login link" hidden>
+        </div>
+
         <div class="dashboard-primary-grid">
             @if ($canViewFinance || $canViewExpenses)
                 <section class="card dashboard-panel dashboard-finance-panel">
@@ -735,4 +743,23 @@
             </section>
         @endif
     </div>
+    <script>
+        document.getElementById('copy-portal-login').addEventListener('click', async function () {
+            const link = document.getElementById('portal-login-link');
+            const status = document.getElementById('portal-copy-status');
+
+            try {
+                if (! navigator.clipboard || ! window.isSecureContext) {
+                    throw new Error('Clipboard unavailable');
+                }
+                await navigator.clipboard.writeText(link.value);
+                status.textContent = 'Portal login link copied.';
+            } catch (error) {
+                link.hidden = false;
+                link.focus();
+                link.select();
+                status.textContent = 'Select and copy the link above.';
+            }
+        });
+    </script>
 @endsection
