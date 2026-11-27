@@ -153,6 +153,8 @@ class StudentController extends Controller
         $photoPath = $request->file('photo')?->store('student-photos', 'local');
         $student = DB::transaction(function () use ($data, $photoPath, $registerNumbers) {
             $branch = Branch::query()->whereKey($data['branch_id'])->lockForUpdate()->firstOrFail();
+            $rollNumber = filled($data['roll_number'] ?? null) ? $data['roll_number'] : $registerNumbers->nextRollNumber($branch, $data);
+            $registerNumbers->assertRollAvailable($branch, $data, $rollNumber);
             $next = Student::where('branch_id', $branch->id)->count() + 1;
             $student = Student::create([
                 'branch_id' => $branch->id,
@@ -161,9 +163,7 @@ class StudentController extends Controller
                 'first_name' => $data['first_name'], 'last_name' => $data['last_name'] ?? null,
                 'date_of_birth' => $data['date_of_birth'] ?? null, 'gender' => $data['gender'] ?? null,
                 'email' => $data['email'] ?? null, 'phone' => $data['phone'] ?? null, 'address' => $data['address'] ?? null,
-                'roll_number' => filled($data['roll_number'] ?? null)
-                    ? $data['roll_number']
-                    : $registerNumbers->nextRollNumber($branch),
+                'roll_number' => $rollNumber,
                 'gr_number' => filled($data['gr_number'] ?? null)
                     ? $data['gr_number']
                     : $registerNumbers->nextGrNumber($branch),
@@ -179,7 +179,7 @@ class StudentController extends Controller
                 'photo_path' => $photoPath,
             ]);
             StudentEnrollment::create(['student_id' => $student->id, 'branch_id' => $branch
-                ->id, 'academic_year_id' => $data['academic_year_id'], 'school_class_id' => $data['school_class_id'] ?? null, 'section_id' => $data['section_id'] ?? null, 'course_id' => $data['course_id'] ?? null, 'semester_id' => $data['semester_id'] ?? null, 'admission_date' => today()]);
+                ->id, 'academic_year_id' => $data['academic_year_id'], 'school_class_id' => $data['school_class_id'] ?? null, 'section_id' => $data['section_id'] ?? null, 'course_id' => $data['course_id'] ?? null, 'semester_id' => $data['semester_id'] ?? null, 'roll_number' => $rollNumber, 'admission_date' => today()]);
             $hasPrimaryGuardian = false;
             if (! empty($data['guardian_id'])) {
                 $student->guardians()->attach($data['guardian_id'], ['is_primary' => true]);
@@ -385,7 +385,6 @@ class StudentController extends Controller
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('students', 'roll_number')->where('branch_id', $student->branch_id)->ignore($student->id),
             ],
             'gr_number' => [
                 'nullable',
@@ -438,8 +437,12 @@ class StudentController extends Controller
         DB::transaction(function () use ($student, $data, $parentDetails, $registerNumbers): void {
             $branch = Branch::query()->whereKey($student->branch_id)->lockForUpdate()->firstOrFail();
 
-            if (blank($data['roll_number'] ?? null)) {
-                $data['roll_number'] = $registerNumbers->nextRollNumber($branch);
+            $enrollment = $student->enrollments()->where('status', 'active')->latest('id')->first();
+            if ($enrollment) {
+                $group = $enrollment->only(['academic_year_id', 'school_class_id', 'section_id', 'course_id', 'semester_id']);
+                $data['roll_number'] = filled($data['roll_number'] ?? null) ? $data['roll_number'] : $registerNumbers->nextRollNumber($branch, $group);
+                $registerNumbers->assertRollAvailable($branch, $group, $data['roll_number'], $enrollment->id);
+                $enrollment->update(['roll_number' => $data['roll_number']]);
             }
 
             if (blank($data['gr_number'] ?? null)) {
@@ -478,7 +481,7 @@ class StudentController extends Controller
         return back()->with('success', 'Student status updated.');
     }
 
-    public function enroll(Request $request, Student $student)
+    public function enroll(Request $request, Student $student, StudentRegisterNumberService $registerNumbers)
     {
         abort_unless($request->user()->canAccessBranch($student->branch_id), 403);
         $data = $request->validate([
@@ -494,15 +497,17 @@ class StudentController extends Controller
             throw ValidationException::withMessages(['academic_year_id' => 'This student already has an enrollment for that campus and academic year.']);
         }
         $isTransfer = (int) $branch->id !== (int) $student->branch_id;
-        DB::transaction(function () use ($student, $branch, $data, $request, $isTransfer) {
+        DB::transaction(function () use ($student, $branch, $data, $request, $isTransfer, $registerNumbers) {
+            Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
+            $rollNumber = $registerNumbers->nextRollNumber($branch, $data);
             $student->enrollments()->where('status', 'active')->lockForUpdate()->update(['status' => $isTransfer ? 'withdrawn' : 'promoted']);
             StudentEnrollment::create([
                 'student_id' => $student->id, 'branch_id' => $branch->id,
                 'academic_year_id' => $data['academic_year_id'], 'school_class_id' => $data['school_class_id'] ?? null,
                 'section_id' => $data['section_id'] ?? null, 'course_id' => $data['course_id'] ?? null,
-                'semester_id' => $data['semester_id'] ?? null, 'admission_date' => $data['admission_date'] ?? today(), 'status' => 'active',
+                'semester_id' => $data['semester_id'] ?? null, 'roll_number' => $rollNumber, 'admission_date' => $data['admission_date'] ?? today(), 'status' => 'active',
             ]);
-            $student->update(['branch_id' => $branch->id, 'status' => 'active']);
+            $student->update(['branch_id' => $branch->id, 'roll_number' => $rollNumber, 'status' => 'active']);
             DB::table('student_histories')->insert([
                 'student_id' => $student->id, 'user_id' => $request->user()->id,
                 'tenant_id' => app(TenantContext::class)->id(),

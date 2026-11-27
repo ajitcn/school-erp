@@ -34,7 +34,6 @@ class StoreStudentRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('students', 'roll_number')->where('branch_id', $this->input('branch_id')),
             ],
             'gr_number' => [
                 'nullable',

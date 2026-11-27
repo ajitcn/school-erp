@@ -34,8 +34,8 @@
 
     <x-admin.card padding="false">
         <div class="card-header"><h2>Enrollment history</h2></div>
-        <x-admin.table><thead><tr><th>Campus</th><th>Academic year</th><th>Class / section</th><th>Course / semester</th><th>Start date</th><th>Status</th></tr></thead><tbody>
-            @forelse($student->enrollments->sortByDesc('created_at') as $enrollment)<tr><td>{{ $enrollment->branch?->name ?? $student->branch?->name }}</td><td>{{ $enrollment->academicYear?->name ?? '—' }}</td><td>{{ $enrollment->schoolClass?->name ?? '—' }}{{ $enrollment->section?->name ? ' / '.$enrollment->section->name : '' }}</td><td>{{ $enrollment->course?->name ?? '—' }}{{ $enrollment->semester?->name ? ' / '.$enrollment->semester->name : '' }}</td><td>{{ $enrollment->admission_date?->format('d M Y') ?? '—' }}</td><td><x-admin.badge :tone="$enrollment->status==='active'?'success':'slate'">{{ ucfirst($enrollment->status) }}</x-admin.badge></td></tr>@empty<tr><td colspan="6"><x-admin.empty-state title="No enrollment history recorded" /></td></tr>@endforelse
+        <x-admin.table><thead><tr><th>Campus</th><th>Academic year</th><th>Class / section</th><th>Course / semester</th><th>R.NO</th><th>Start date</th><th>Status</th></tr></thead><tbody>
+            @forelse($student->enrollments->sortByDesc('created_at') as $enrollment)<tr><td>{{ $enrollment->branch?->name ?? $student->branch?->name }}</td><td>{{ $enrollment->academicYear?->name ?? '—' }}</td><td>{{ $enrollment->schoolClass?->name ?? '—' }}{{ $enrollment->section?->name ? ' / '.$enrollment->section->name : '' }}</td><td>{{ $enrollment->course?->name ?? '—' }}{{ $enrollment->semester?->name ? ' / '.$enrollment->semester->name : '' }}</td><td>{{ $enrollment->roll_number ?? '—' }}</td><td>{{ $enrollment->admission_date?->format('d M Y') ?? '—' }}</td><td><x-admin.badge :tone="$enrollment->status==='active'?'success':'slate'">{{ ucfirst($enrollment->status) }}</x-admin.badge></td></tr>@empty<tr><td colspan="7"><x-admin.empty-state title="No enrollment history recorded" /></td></tr>@endforelse
         </tbody></x-admin.table>
     </x-admin.card>
 

@@ -226,7 +226,7 @@
                                 @php($enrollment = $enrollments->get($student->id))
                                 @php($selectedStatus = old("records.{$rowIndex}.status", $existing->get($student->id)?->status ?? 'present'))
                                 @php($groupLabel = $institutionType === 'college' ? ($enrollment?->course?->name.' · '.$enrollment?->semester?->name) : ($enrollment?->schoolClass?->name.' · '.$enrollment?->section?->name))
-                                <tr data-attendance-row data-student-search="{{ strtolower($student->first_name.' '.$student->last_name.' '.$student->student_id.' '.$student->roll_number.' '.$student->gr_number) }}">
+                                <tr data-attendance-row data-student-search="{{ strtolower($student->first_name.' '.$student->last_name.' '.$student->student_id.' '.$enrollment?->roll_number.' '.$student->gr_number) }}">
                                     <td>
                                         <div class="attendance-student-cell">
                                             <span class="attendance-student-avatar" aria-hidden="true">
@@ -235,7 +235,7 @@
                                             <span>
                                                 <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
                                                 <small>{{ $student->student_id }}</small>
-                                                <small>R.NO {{ $student->roll_number }} · GR.NO {{ $student->gr_number }}</small>
+                                                <small>R.NO {{ $enrollment?->roll_number ?? '—' }} · GR.NO {{ $student->gr_number }}</small>
                                                 <small class="attendance-mobile-group">{{ $groupLabel }}</small>
                                             </span>
                                         </div>

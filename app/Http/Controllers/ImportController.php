@@ -329,12 +329,6 @@ class ImportController extends Controller
             ->whereNotNull('phone')
             ->get()
             ->keyBy(fn (Guardian $guardian): string => $this->normalizeValue($guardian->phone));
-        $existingRollNumbers = Student::query()
-            ->where('branch_id', $branchId)
-            ->whereNotNull('roll_number')
-            ->pluck('roll_number')
-            ->map(fn (string $value): string => $this->normalizeValue($value))
-            ->all();
         $existingGrNumbers = Student::query()
             ->where('branch_id', $branchId)
             ->whereNotNull('gr_number')
@@ -461,13 +455,13 @@ class ImportController extends Controller
                 $errors[] = 'Aadhaar number must contain exactly 12 digits. Format this spreadsheet cell as text to preserve leading zeroes.';
             }
 
-            foreach (['roll_number', 'gr_number'] as $field) {
+            foreach (['gr_number'] as $field) {
                 if (blank($row[$field] ?? null)) {
                     continue;
                 }
 
                 $numberKey = $this->normalizeValue($row[$field]);
-                $existingValues = $field === 'roll_number' ? $existingRollNumbers : $existingGrNumbers;
+                $existingValues = $existingGrNumbers;
                 if (in_array($numberKey, $existingValues, true) || isset($seenRegisterNumbers[$field][$numberKey])) {
                     $label = $field === 'roll_number' ? 'R.NO' : 'GR.NO';
                     $errors[] = $label.' is already used in this branch.';
@@ -510,6 +504,18 @@ class ImportController extends Controller
                 } else {
                     $resolved['semester_id'] = $semester->id;
                 }
+            }
+            if (filled($row['roll_number'] ?? null) && $resolved['academic_year_id']) {
+                $groupKey = implode('|', array_map(fn ($value) => (string) ($value ?? ''), array_intersect_key($resolved, array_flip(['academic_year_id', 'school_class_id', 'section_id', 'course_id', 'semester_id']))));
+                $numberKey = $this->normalizeValue($row['roll_number']);
+                $existing = StudentEnrollment::query()->where('branch_id', $branchId)->where('academic_year_id', $resolved['academic_year_id']);
+                foreach (['school_class_id', 'section_id', 'course_id', 'semester_id'] as $field) {
+                    $existing->where($field, $resolved[$field]);
+                }
+                if ($existing->where('roll_number', $row['roll_number'])->exists() || isset($seenRegisterNumbers['roll_number'][$groupKey][$numberKey])) {
+                    $errors[] = 'R.NO is already used in this academic group.';
+                }
+                $seenRegisterNumbers['roll_number'][$groupKey][$numberKey] = true;
             }
             if (! blank($row['guardian_name'] ?? null) || ! blank($row['guardian_phone'] ?? null)) {
                 if (blank($row['guardian_name'] ?? null) || blank($row['guardian_phone'] ?? null)) {
@@ -624,6 +630,10 @@ class ImportController extends Controller
                     DB::transaction(function () use ($row, $branch, $registerNumbers, &$success, &$importedStudentIds, $request) {
                         Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
                         $resolved = $row['resolved'];
+                        $rollNumber = filled($row['data']['roll_number'] ?? null)
+                            ? $row['data']['roll_number']
+                            : $registerNumbers->nextRollNumber($branch, $resolved);
+                        $registerNumbers->assertRollAvailable($branch, $resolved, $rollNumber);
                         $year = AcademicYear::query()
                             ->whereKey($resolved['academic_year_id'])
                             ->where('branch_id', $branch->id)
@@ -640,9 +650,7 @@ class ImportController extends Controller
                             'phone' => ($row['data']['phone'] ?? null) ?: null,
                             'email' => ($row['data']['email'] ?? null) ?: null,
                             'address' => ($row['data']['address'] ?? null) ?: null,
-                            'roll_number' => filled($row['data']['roll_number'] ?? null)
-                                ? $row['data']['roll_number']
-                                : $registerNumbers->nextRollNumber($branch),
+                            'roll_number' => $rollNumber,
                             'gr_number' => filled($row['data']['gr_number'] ?? null)
                                 ? $row['data']['gr_number']
                                 : $registerNumbers->nextGrNumber($branch),
@@ -664,6 +672,7 @@ class ImportController extends Controller
                             'section_id' => $resolved['section_id'],
                             'course_id' => $resolved['course_id'],
                             'semester_id' => $resolved['semester_id'],
+                            'roll_number' => $rollNumber,
                             'admission_date' => today(),
                         ]);
 

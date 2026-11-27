@@ -104,7 +104,7 @@
             </thead>
             <tbody>
                 @forelse ($students as $student)
-                    @php($enrollment = $student->enrollments->first())
+                    @php($enrollment = $student->enrollments->filter(fn ($item) => (! request()->filled('academic_year_id') || $item->academic_year_id == request('academic_year_id')) && (! request()->filled('school_class_id') || $item->school_class_id == request('school_class_id')) && (! request()->filled('section_id') || $item->section_id == request('section_id')))->sortByDesc('id')->first())
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
@@ -119,7 +119,7 @@
                                         {{ $student->student_id }} · {{ $student->admission_number }}
                                     </small>
                                     <small class="d-block text-muted">
-                                        R.NO {{ $student->roll_number }} · GR.NO {{ $student->gr_number }}
+                                        R.NO {{ $enrollment?->roll_number ?? '—' }} · GR.NO {{ $student->gr_number }}
                                     </small>
                                 </div>
                             </div>
