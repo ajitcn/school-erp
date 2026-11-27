@@ -15,7 +15,7 @@ return new class () extends Migration {
 
         foreach (['roll_class_key' => 'school_class_id', 'roll_section_key' => 'section_id', 'roll_course_key' => 'course_id', 'roll_semester_key' => 'semester_id'] as $key => $column) {
             if (! Schema::hasColumn('student_enrollments', $key)) {
-                Schema::table('student_enrollments', fn (Blueprint $table) => $table->unsignedBigInteger($key)->storedAs("coalesce({$column}, 0)"));
+                Schema::table('student_enrollments', fn (Blueprint $table) => $table->unsignedBigInteger($key)->virtualAs("coalesce({$column}, 0)"));
             }
         }
 
